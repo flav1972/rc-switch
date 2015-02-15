@@ -1,5 +1,5 @@
 /*
-  HRCSwitch - Arduino libary for remote control outlet switches
+  RCSwitch - Arduino libary for remote control outlet switches
   Copyright (c) 2011 Suat Özgür.  All right reserved.
   
   Contributors:
@@ -27,33 +27,33 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "HRCSwitch.h"
+#include "RCSwitch.h"
 
-#if not defined( HRCSwitchDisableReceiving )
-unsigned long HRCSwitch::nReceivedValue = NULL;
-unsigned int HRCSwitch::nReceivedBitlength = 0;
-unsigned int HRCSwitch::nReceivedDelay = 0;
-unsigned int HRCSwitch::nReceivedProtocol = 0;
-int HRCSwitch::nReceiveTolerance = 60;
+#if not defined( RCSwitchDisableReceiving )
+unsigned long RCSwitch::nReceivedValue = NULL;
+unsigned int RCSwitch::nReceivedBitlength = 0;
+unsigned int RCSwitch::nReceivedDelay = 0;
+unsigned int RCSwitch::nReceivedProtocol = 0;
+int RCSwitch::nReceiveTolerance = 60;
 #endif
-unsigned int HRCSwitch::timings[HRCSWITCH_MAX_CHANGES];
+unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
 
-HRCSwitch::HRCSwitch() {
+RCSwitch::RCSwitch() {
   this->nTransmitterPin = -1;
   this->setPulseLength(350);
   this->setRepeatTransmit(10);
   this->setProtocol(1);
-  #if not defined( HRCSwitchDisableReceiving )
+  #if not defined( RCSwitchDisableReceiving )
   this->nReceiverInterrupt = -1;
   this->setReceiveTolerance(60);
-  HRCSwitch::nReceivedValue = NULL;
+  RCSwitch::nReceivedValue = NULL;
   #endif
 }
 
 /**
   * Sets the protocol to send.
   */
-void HRCSwitch::setProtocol(int nProtocol) {
+void RCSwitch::setProtocol(int nProtocol) {
   this->nProtocol = nProtocol;
   if (nProtocol == 1){
     this->setPulseLength(350);
@@ -73,7 +73,7 @@ void HRCSwitch::setProtocol(int nProtocol) {
 /**
   * Sets the protocol to send with pulse length in microseconds.
   */
-void HRCSwitch::setProtocol(int nProtocol, int nPulseLength) {
+void RCSwitch::setProtocol(int nProtocol, int nPulseLength) {
   this->nProtocol = nProtocol;
   this->setPulseLength(nPulseLength);
 }
@@ -82,23 +82,23 @@ void HRCSwitch::setProtocol(int nProtocol, int nPulseLength) {
 /**
   * Sets pulse length in microseconds
   */
-void HRCSwitch::setPulseLength(int nPulseLength) {
+void RCSwitch::setPulseLength(int nPulseLength) {
   this->nPulseLength = nPulseLength;
 }
 
 /**
  * Sets Repeat Transmits
  */
-void HRCSwitch::setRepeatTransmit(int nRepeatTransmit) {
+void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
   this->nRepeatTransmit = nRepeatTransmit;
 }
 
 /**
  * Set Receiving Tolerance
  */
-#if not defined( HRCSwitchDisableReceiving )
-void HRCSwitch::setReceiveTolerance(int nPercent) {
-  HRCSwitch::nReceiveTolerance = nPercent;
+#if not defined( RCSwitchDisableReceiving )
+void RCSwitch::setReceiveTolerance(int nPercent) {
+  RCSwitch::nReceiveTolerance = nPercent;
 }
 #endif
   
@@ -108,7 +108,7 @@ void HRCSwitch::setReceiveTolerance(int nPercent) {
  *
  * @param nTransmitterPin    Arduino Pin to which the sender is connected to
  */
-void HRCSwitch::enableTransmit(int nTransmitterPin) {
+void RCSwitch::enableTransmit(int nTransmitterPin) {
   this->nTransmitterPin = nTransmitterPin;
   pinMode(this->nTransmitterPin, OUTPUT);
 }
@@ -116,7 +116,7 @@ void HRCSwitch::enableTransmit(int nTransmitterPin) {
 /**
   * Disable transmissions
   */
-void HRCSwitch::disableTransmit() {
+void RCSwitch::disableTransmit() {
   this->nTransmitterPin = -1;
 }
 
@@ -126,7 +126,7 @@ void HRCSwitch::disableTransmit() {
  * @param sGroup        Code of the switch group (A,B,C,D)
  * @param nDevice       Number of the switch itself (1..3)
  */
-void HRCSwitch::switchOn(char sGroup, int nDevice) {
+void RCSwitch::switchOn(char sGroup, int nDevice) {
   this->sendTriState( this->getCodeWordD(sGroup, nDevice, true) );
 }
 
@@ -136,7 +136,7 @@ void HRCSwitch::switchOn(char sGroup, int nDevice) {
  * @param sGroup        Code of the switch group (A,B,C,D)
  * @param nDevice       Number of the switch itself (1..3)
  */
-void HRCSwitch::switchOff(char sGroup, int nDevice) {
+void RCSwitch::switchOff(char sGroup, int nDevice) {
   this->sendTriState( this->getCodeWordD(sGroup, nDevice, false) );
 }
 
@@ -147,7 +147,7 @@ void HRCSwitch::switchOff(char sGroup, int nDevice) {
  * @param nGroup   Number of group (1..4)
  * @param nDevice  Number of device (1..4)
   */
-void HRCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
+void RCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
   this->sendTriState( this->getCodeWordC(sFamily, nGroup, nDevice, true) );
 }
 
@@ -158,7 +158,7 @@ void HRCSwitch::switchOn(char sFamily, int nGroup, int nDevice) {
  * @param nGroup   Number of group (1..4)
  * @param nDevice  Number of device (1..4)
  */
-void HRCSwitch::switchOff(char sFamily, int nGroup, int nDevice) {
+void RCSwitch::switchOff(char sFamily, int nGroup, int nDevice) {
   this->sendTriState( this->getCodeWordC(sFamily, nGroup, nDevice, false) );
 }
 
@@ -168,7 +168,7 @@ void HRCSwitch::switchOff(char sFamily, int nGroup, int nDevice) {
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void HRCSwitch::switchOn(int nAddressCode, int nChannelCode) {
+void RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
   this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, true) );
 }
 
@@ -178,7 +178,7 @@ void HRCSwitch::switchOn(int nAddressCode, int nChannelCode) {
  * @param nAddressCode  Number of the switch group (1..4)
  * @param nChannelCode  Number of the switch itself (1..4)
  */
-void HRCSwitch::switchOff(int nAddressCode, int nChannelCode) {
+void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
   this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, false) );
 }
 
@@ -189,7 +189,7 @@ void HRCSwitch::switchOff(int nAddressCode, int nChannelCode) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..5)
  */
-void HRCSwitch::switchOn(char* sGroup, int nChannel) {
+void RCSwitch::switchOn(char* sGroup, int nChannel) {
   char* code[6] = { "00000", "10000", "01000", "00100", "00010", "00001" };
   this->switchOn(sGroup, code[nChannel]);
 }
@@ -201,7 +201,7 @@ void HRCSwitch::switchOn(char* sGroup, int nChannel) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param nChannelCode  Number of the switch itself (1..5)
  */
-void HRCSwitch::switchOff(char* sGroup, int nChannel) {
+void RCSwitch::switchOff(char* sGroup, int nChannel) {
   char* code[6] = { "00000", "10000", "01000", "00100", "00010", "00001" };
   this->switchOff(sGroup, code[nChannel]);
 }
@@ -212,7 +212,7 @@ void HRCSwitch::switchOff(char* sGroup, int nChannel) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
-void HRCSwitch::switchOn(char* sGroup, char* sDevice) {
+void RCSwitch::switchOn(char* sGroup, char* sDevice) {
     this->sendTriState( this->getCodeWordA(sGroup, sDevice, true) );
 }
 
@@ -222,7 +222,7 @@ void HRCSwitch::switchOn(char* sGroup, char* sDevice) {
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  * @param sDevice       Code of the switch device (refers to DIP switches 6..10 (A..E) where "1" = on and "0" = off, if all DIP switches are on it's "11111")
  */
-void HRCSwitch::switchOff(char* sGroup, char* sDevice) {
+void RCSwitch::switchOff(char* sGroup, char* sDevice) {
     this->sendTriState( this->getCodeWordA(sGroup, sDevice, false) );
 }
 
@@ -242,7 +242,7 @@ void HRCSwitch::switchOff(char* sGroup, char* sDevice) {
  *
  * @return char[13]
  */
-char* HRCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
+char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus) {
    int nReturnPos = 0;
    static char sReturn[13];
    
@@ -279,7 +279,7 @@ char* HRCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatu
  * getCodeWordA(char*, char*)
  *
  */
-char* HRCSwitch::getCodeWordA(char* sGroup, char* sDevice, boolean bOn) {
+char* RCSwitch::getCodeWordA(char* sGroup, char* sDevice, boolean bOn) {
     static char sDipSwitches[13];
     int i = 0;
     int j = 0;
@@ -316,7 +316,7 @@ char* HRCSwitch::getCodeWordA(char* sGroup, char* sDevice, boolean bOn) {
 /**
  * Like getCodeWord (Type C = Intertechno)
  */
-char* HRCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
+char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus) {
   static char sReturn[13];
   int nReturnPos = 0;
   
@@ -365,7 +365,7 @@ char* HRCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSt
  * @return char[13]
  */
 
-char* HRCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
+char* RCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
     static char sReturn[13];
     int nReturnPos = 0;
 
@@ -431,7 +431,7 @@ char* HRCSwitch::getCodeWordD(char sGroup, int nDevice, boolean bStatus){
 /**
  * @param sCodeWord   /^[10FS]*$/  -> see getCodeWord
  */
-void HRCSwitch::sendTriState(char* sCodeWord) {
+void RCSwitch::sendTriState(char* sCodeWord) {
   for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
     int i = 0;
     while (sCodeWord[i] != '\0') {
@@ -452,11 +452,11 @@ void HRCSwitch::sendTriState(char* sCodeWord) {
   }
 }
 
-void HRCSwitch::send(unsigned long Code, unsigned int length) {
+void RCSwitch::send(unsigned long Code, unsigned int length) {
   this->send( this->dec2binWzerofill(Code, length) );
 }
 
-void HRCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
+void RCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
   int lastprotocol = this->nProtocol;
   int lastRepeatTransmit = this->nRepeatTransmit;
 
@@ -498,7 +498,7 @@ void HRCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
 
 }
 
-void HRCSwitch::send(char* sCodeWord) {
+void RCSwitch::send(char* sCodeWord) {
   for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
     int i = 0;
     while (sCodeWord[i] != '\0') {
@@ -530,13 +530,13 @@ void HRCSwitch::send(char* sCodeWord) {
   }
 }
 
-void HRCSwitch::transmit(int nHighPulses, int nLowPulses) {
-    #if not defined ( HRCSwitchDisableReceiving )
+void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
+    #if not defined ( RCSwitchDisableReceiving )
     boolean disabled_Receive = false;
     int nReceiverInterrupt_backup = nReceiverInterrupt;
     #endif
     if (this->nTransmitterPin != -1) {
-        #if not defined( HRCSwitchDisableReceiving )
+        #if not defined( RCSwitchDisableReceiving )
         if (this->nReceiverInterrupt != -1) {
             this->disableReceive();
             disabled_Receive = true;
@@ -547,7 +547,7 @@ void HRCSwitch::transmit(int nHighPulses, int nLowPulses) {
         digitalWrite(this->nTransmitterPin, LOW);
         delayMicroseconds( this->nPulseLength * nLowPulses);
         
-        #if not defined( HRCSwitchDisableReceiving )
+        #if not defined( RCSwitchDisableReceiving )
         if(disabled_Receive){
             this->enableReceive(nReceiverInterrupt_backup);
         }
@@ -561,7 +561,7 @@ void HRCSwitch::transmit(int nHighPulses, int nLowPulses) {
  *                       _  
  * Waveform Protocol 2: | |__
  */
-void HRCSwitch::send0() {
+void RCSwitch::send0() {
     if (this->nProtocol == 1){
         this->transmit(1,3);
     }
@@ -583,7 +583,7 @@ void HRCSwitch::send0() {
  *                       __  
  * Waveform Protocol 2: |  |_
  */
-void HRCSwitch::send1() {
+void RCSwitch::send1() {
       if (this->nProtocol == 1){
         this->transmit(3,1);
     }
@@ -598,7 +598,7 @@ void HRCSwitch::send1() {
     }
 }
 
-void HRCSwitch::sendPair(boolean b) {
+void RCSwitch::sendPair(boolean b) {
   if(b)
  {
    this->send1();
@@ -619,7 +619,7 @@ void HRCSwitch::sendPair(boolean b) {
  *            _     _
  * Waveform: | |___| |___
  */
-void HRCSwitch::sendT0() {
+void RCSwitch::sendT0() {
   this->transmit(1,3);
   this->transmit(1,3);
 }
@@ -629,7 +629,7 @@ void HRCSwitch::sendT0() {
  *            ___   ___
  * Waveform: |   |_|   |_
  */
-void HRCSwitch::sendT1() {
+void RCSwitch::sendT1() {
   this->transmit(3,1);
   this->transmit(3,1);
 }
@@ -639,7 +639,7 @@ void HRCSwitch::sendT1() {
  *            _     ___
  * Waveform: | |___|   |_
  */
-void HRCSwitch::sendTF() {
+void RCSwitch::sendTF() {
   this->transmit(1,3);
   this->transmit(3,1);
 }
@@ -651,7 +651,7 @@ void HRCSwitch::sendTF() {
  *                       _
  * Waveform Protocol 2: | |__________
  */
-void HRCSwitch::sendSync() {
+void RCSwitch::sendSync() {
 
     if (this->nProtocol == 1){
         this->transmit(1,31);
@@ -664,19 +664,19 @@ void HRCSwitch::sendSync() {
     }
 }
 
-#if not defined( HRCSwitchDisableReceiving )
+#if not defined( RCSwitchDisableReceiving )
 /**
  * Enable receiving data
  */
-void HRCSwitch::enableReceive(int interrupt) {
+void RCSwitch::enableReceive(int interrupt) {
   this->nReceiverInterrupt = interrupt;
   this->enableReceive();
 }
 
-void HRCSwitch::enableReceive() {
+void RCSwitch::enableReceive() {
   if (this->nReceiverInterrupt != -1) {
-    HRCSwitch::nReceivedValue = NULL;
-    HRCSwitch::nReceivedBitlength = NULL;
+    RCSwitch::nReceivedValue = NULL;
+    RCSwitch::nReceivedBitlength = NULL;
     attachInterrupt(this->nReceiverInterrupt, handleInterrupt, CHANGE);
   }
 }
@@ -684,53 +684,53 @@ void HRCSwitch::enableReceive() {
 /**
  * Disable receiving data
  */
-void HRCSwitch::disableReceive() {
+void RCSwitch::disableReceive() {
   detachInterrupt(this->nReceiverInterrupt);
   this->nReceiverInterrupt = -1;
 }
 
-bool HRCSwitch::available() {
-  return HRCSwitch::nReceivedValue != NULL;
+bool RCSwitch::available() {
+  return RCSwitch::nReceivedValue != NULL;
 }
 
-void HRCSwitch::resetAvailable() {
-  HRCSwitch::nReceivedValue = NULL;
+void RCSwitch::resetAvailable() {
+  RCSwitch::nReceivedValue = NULL;
 }
 
-unsigned long HRCSwitch::getReceivedValue() {
-    return HRCSwitch::nReceivedValue;
+unsigned long RCSwitch::getReceivedValue() {
+    return RCSwitch::nReceivedValue;
 }
 
-unsigned int HRCSwitch::getReceivedBitlength() {
-  return HRCSwitch::nReceivedBitlength;
+unsigned int RCSwitch::getReceivedBitlength() {
+  return RCSwitch::nReceivedBitlength;
 }
 
-unsigned int HRCSwitch::getReceivedDelay() {
-  return HRCSwitch::nReceivedDelay;
+unsigned int RCSwitch::getReceivedDelay() {
+  return RCSwitch::nReceivedDelay;
 }
 
-unsigned int HRCSwitch::getReceivedProtocol() {
-  return HRCSwitch::nReceivedProtocol;
+unsigned int RCSwitch::getReceivedProtocol() {
+  return RCSwitch::nReceivedProtocol;
 }
 
-unsigned int* HRCSwitch::getReceivedRawdata() {
-    return HRCSwitch::timings;
+unsigned int* RCSwitch::getReceivedRawdata() {
+    return RCSwitch::timings;
 }
 
 /**
  *
  */
-bool HRCSwitch::receiveProtocol1(unsigned int changeCount){
+bool RCSwitch::receiveProtocol1(unsigned int changeCount){
     
       unsigned long code = 0;
-      unsigned long delay = HRCSwitch::timings[0] / 31;
-      unsigned long delayTolerance = delay * HRCSwitch::nReceiveTolerance * 0.01;    
+      unsigned long delay = RCSwitch::timings[0] / 31;
+      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
 
       for (int i = 1; i<changeCount ; i=i+2) {
       
-          if (HRCSwitch::timings[i] > delay-delayTolerance && HRCSwitch::timings[i] < delay+delayTolerance && HRCSwitch::timings[i+1] > delay*3-delayTolerance && HRCSwitch::timings[i+1] < delay*3+delayTolerance) {
+          if (RCSwitch::timings[i] > delay-delayTolerance && RCSwitch::timings[i] < delay+delayTolerance && RCSwitch::timings[i+1] > delay*3-delayTolerance && RCSwitch::timings[i+1] < delay*3+delayTolerance) {
             code = code << 1;
-          } else if (HRCSwitch::timings[i] > delay*3-delayTolerance && HRCSwitch::timings[i] < delay*3+delayTolerance && HRCSwitch::timings[i+1] > delay-delayTolerance && HRCSwitch::timings[i+1] < delay+delayTolerance) {
+          } else if (RCSwitch::timings[i] > delay*3-delayTolerance && RCSwitch::timings[i] < delay*3+delayTolerance && RCSwitch::timings[i+1] > delay-delayTolerance && RCSwitch::timings[i+1] < delay+delayTolerance) {
             code+=1;
             code = code << 1;
           } else {
@@ -741,10 +741,10 @@ bool HRCSwitch::receiveProtocol1(unsigned int changeCount){
       }      
       code = code >> 1;
     if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
-      HRCSwitch::nReceivedValue = code;
-      HRCSwitch::nReceivedBitlength = changeCount / 2;
-      HRCSwitch::nReceivedDelay = delay;
-      HRCSwitch::nReceivedProtocol = 1;
+      RCSwitch::nReceivedValue = code;
+      RCSwitch::nReceivedBitlength = changeCount / 2;
+      RCSwitch::nReceivedDelay = delay;
+      RCSwitch::nReceivedProtocol = 1;
     }
 
     if (code == 0){
@@ -756,17 +756,17 @@ bool HRCSwitch::receiveProtocol1(unsigned int changeCount){
 
 }
 
-bool HRCSwitch::receiveProtocol2(unsigned int changeCount){
+bool RCSwitch::receiveProtocol2(unsigned int changeCount){
     
       unsigned long code = 0;
-      unsigned long delay = HRCSwitch::timings[0] / 10;
-      unsigned long delayTolerance = delay * HRCSwitch::nReceiveTolerance * 0.01;    
+      unsigned long delay = RCSwitch::timings[0] / 10;
+      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
 
       for (int i = 1; i<changeCount ; i=i+2) {
       
-          if (HRCSwitch::timings[i] > delay-delayTolerance && HRCSwitch::timings[i] < delay+delayTolerance && HRCSwitch::timings[i+1] > delay*2-delayTolerance && HRCSwitch::timings[i+1] < delay*2+delayTolerance) {
+          if (RCSwitch::timings[i] > delay-delayTolerance && RCSwitch::timings[i] < delay+delayTolerance && RCSwitch::timings[i+1] > delay*2-delayTolerance && RCSwitch::timings[i+1] < delay*2+delayTolerance) {
             code = code << 1;
-          } else if (HRCSwitch::timings[i] > delay*2-delayTolerance && HRCSwitch::timings[i] < delay*2+delayTolerance && HRCSwitch::timings[i+1] > delay-delayTolerance && HRCSwitch::timings[i+1] < delay+delayTolerance) {
+          } else if (RCSwitch::timings[i] > delay*2-delayTolerance && RCSwitch::timings[i] < delay*2+delayTolerance && RCSwitch::timings[i+1] > delay-delayTolerance && RCSwitch::timings[i+1] < delay+delayTolerance) {
             code+=1;
             code = code << 1;
           } else {
@@ -777,10 +777,10 @@ bool HRCSwitch::receiveProtocol2(unsigned int changeCount){
       }      
       code = code >> 1;
     if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
-      HRCSwitch::nReceivedValue = code;
-      HRCSwitch::nReceivedBitlength = changeCount / 2;
-      HRCSwitch::nReceivedDelay = delay;
-      HRCSwitch::nReceivedProtocol = 2;
+      RCSwitch::nReceivedValue = code;
+      RCSwitch::nReceivedBitlength = changeCount / 2;
+      RCSwitch::nReceivedDelay = delay;
+      RCSwitch::nReceivedProtocol = 2;
     }
 
     if (code == 0){
@@ -794,23 +794,23 @@ bool HRCSwitch::receiveProtocol2(unsigned int changeCount){
 /** Protocol 3 is used by BL35P02.
  *
  */
-bool HRCSwitch::receiveProtocol3(unsigned int changeCount){
+bool RCSwitch::receiveProtocol3(unsigned int changeCount){
     
       unsigned long code = 0;
-      unsigned long delay = HRCSwitch::timings[0] / PROTOCOL3_SYNC_FACTOR;
-      unsigned long delayTolerance = delay * HRCSwitch::nReceiveTolerance * 0.01;    
+      unsigned long delay = RCSwitch::timings[0] / PROTOCOL3_SYNC_FACTOR;
+      unsigned long delayTolerance = delay * RCSwitch::nReceiveTolerance * 0.01;    
 
       for (int i = 1; i<changeCount ; i=i+2) {
       
-          if  (HRCSwitch::timings[i]   > delay*PROTOCOL3_0_HIGH_CYCLES - delayTolerance
-            && HRCSwitch::timings[i]   < delay*PROTOCOL3_0_HIGH_CYCLES + delayTolerance
-            && HRCSwitch::timings[i+1] > delay*PROTOCOL3_0_LOW_CYCLES  - delayTolerance
-            && HRCSwitch::timings[i+1] < delay*PROTOCOL3_0_LOW_CYCLES  + delayTolerance) {
+          if  (RCSwitch::timings[i]   > delay*PROTOCOL3_0_HIGH_CYCLES - delayTolerance
+            && RCSwitch::timings[i]   < delay*PROTOCOL3_0_HIGH_CYCLES + delayTolerance
+            && RCSwitch::timings[i+1] > delay*PROTOCOL3_0_LOW_CYCLES  - delayTolerance
+            && RCSwitch::timings[i+1] < delay*PROTOCOL3_0_LOW_CYCLES  + delayTolerance) {
             code = code << 1;
-          } else if (HRCSwitch::timings[i]   > delay*PROTOCOL3_1_HIGH_CYCLES - delayTolerance
-                  && HRCSwitch::timings[i]   < delay*PROTOCOL3_1_HIGH_CYCLES + delayTolerance
-                  && HRCSwitch::timings[i+1] > delay*PROTOCOL3_1_LOW_CYCLES  - delayTolerance
-                  && HRCSwitch::timings[i+1] < delay*PROTOCOL3_1_LOW_CYCLES  + delayTolerance) {
+          } else if (RCSwitch::timings[i]   > delay*PROTOCOL3_1_HIGH_CYCLES - delayTolerance
+                  && RCSwitch::timings[i]   < delay*PROTOCOL3_1_HIGH_CYCLES + delayTolerance
+                  && RCSwitch::timings[i+1] > delay*PROTOCOL3_1_LOW_CYCLES  - delayTolerance
+                  && RCSwitch::timings[i+1] < delay*PROTOCOL3_1_LOW_CYCLES  + delayTolerance) {
             code+=1;
             code = code << 1;
           } else {
@@ -821,10 +821,10 @@ bool HRCSwitch::receiveProtocol3(unsigned int changeCount){
       }      
       code = code >> 1;
       if (changeCount > 6) {    // ignore < 4bit values as there are no devices sending 4bit values => noise
-        HRCSwitch::nReceivedValue = code;
-        HRCSwitch::nReceivedBitlength = changeCount / 2;
-        HRCSwitch::nReceivedDelay = delay;
-        HRCSwitch::nReceivedProtocol = 3;
+        RCSwitch::nReceivedValue = code;
+        RCSwitch::nReceivedBitlength = changeCount / 2;
+        RCSwitch::nReceivedDelay = delay;
+        RCSwitch::nReceivedProtocol = 3;
       }
 
       if (code == 0){
@@ -834,7 +834,7 @@ bool HRCSwitch::receiveProtocol3(unsigned int changeCount){
       }
 }
 
-void HRCSwitch::handleInterrupt() {
+void RCSwitch::handleInterrupt() {
 
   static unsigned int duration;
   static unsigned int changeCount;
@@ -845,7 +845,7 @@ void HRCSwitch::handleInterrupt() {
   long time = micros();
   duration = time - lastTime;
  
-  if (duration > 5000 && duration > HRCSwitch::timings[0] - 200 && duration < HRCSwitch::timings[0] + 200) {
+  if (duration > 5000 && duration > RCSwitch::timings[0] - 200 && duration < RCSwitch::timings[0] + 200) {
     repeatCount++;
     changeCount--;
     if (repeatCount == 2) {
@@ -863,11 +863,11 @@ void HRCSwitch::handleInterrupt() {
     changeCount = 0;
   }
  
-  if (changeCount >= HRCSWITCH_MAX_CHANGES) {
+  if (changeCount >= RCSWITCH_MAX_CHANGES) {
     changeCount = 0;
     repeatCount = 0;
   }
-  HRCSwitch::timings[changeCount++] = duration;
+  RCSwitch::timings[changeCount++] = duration;
   lastTime = time;  
 }
 
@@ -875,11 +875,11 @@ void HRCSwitch::handleInterrupt() {
   * Turns a decimal value to its binary representation
   */
 #endif
-char* HRCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
+char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
     return dec2binWcharfill(Dec, bitLength, '0');
 }
 
-char* HRCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char fill){
+char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char fill){
   static char bin[64];
   unsigned int i=0;
 
@@ -899,11 +899,11 @@ char* HRCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, cha
   return bin;
 }
 
-char* HRCSwitch::dec2binWzerofill2(unsigned long Dec, unsigned int bitLength){
+char* RCSwitch::dec2binWzerofill2(unsigned long Dec, unsigned int bitLength){
     return dec2binWcharfill2(Dec, bitLength, '0');
 }
 
-char* HRCSwitch::dec2binWcharfill2(unsigned long Dec, unsigned int bitLength, char fill){
+char* RCSwitch::dec2binWcharfill2(unsigned long Dec, unsigned int bitLength, char fill){
   static char bin[64];
   unsigned int i=0;
 

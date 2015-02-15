@@ -1,12 +1,12 @@
 #######################################
-# Syntax Coloring Map For HRCSwitch
+# Syntax Coloring Map For RCSwitch
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-HRCSwitch	KEYWORD1
+RCSwitch	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

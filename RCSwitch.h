@@ -1,5 +1,5 @@
 /*
-  HRCSwitch - Arduino libary for remote control outlet switches
+  RCSwitch - Arduino libary for remote control outlet switches
   Copyright (c) 2011 Suat Özgür.  All right reserved.
 
   Contributors:
@@ -25,8 +25,8 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef _HRCSwitch_h
-#define _HRCSwitch_h
+#ifndef _RCSwitch_h
+#define _RCSwitch_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
     #include "Arduino.h"
@@ -40,12 +40,12 @@
 // At least for the ATTiny X4/X5, receiving has to be disabled due to
 // missing libm depencies (udivmodhi4)
 #if defined( __AVR_ATtinyX5__ ) or defined ( __AVR_ATtinyX4__ )
-#define HRCSwitchDisableReceiving
+#define RCSwitchDisableReceiving
 #endif
 
 // Number of maximum High/Low changes per packet.
 // We can handle up to (unsigned long) => 32 bit * 2 H/L changes per bit + 2 for sync
-#define HRCSWITCH_MAX_CHANGES 67
+#define RCSWITCH_MAX_CHANGES 67
 
 #define PROTOCOL3_SYNC_FACTOR   71
 #define PROTOCOL3_0_HIGH_CYCLES  4
@@ -53,10 +53,10 @@
 #define PROTOCOL3_1_HIGH_CYCLES  9
 #define PROTOCOL3_1_LOW_CYCLES   6
 
-class HRCSwitch {
+class RCSwitch {
 
   public:
-    HRCSwitch();
+    RCSwitch();
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
@@ -79,7 +79,7 @@ class HRCSwitch {
     static char* dec2binWcharfill(unsigned long dec, unsigned int length, char fill);
     static char* dec2binWcharfill2(unsigned long dec, unsigned int length, char fill);
     
-    #if not defined( HRCSwitchDisableReceiving )
+    #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);
     void enableReceive();
     void disableReceive();
@@ -97,7 +97,7 @@ class HRCSwitch {
     void disableTransmit();
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
-    #if not defined( HRCSwitchDisableReceiving )
+    #if not defined( RCSwitchDisableReceiving )
     void setReceiveTolerance(int nPercent);
     #endif
     void setProtocol(int nProtocol);
@@ -120,7 +120,7 @@ class HRCSwitch {
 
   
     
-    #if not defined( HRCSwitchDisableReceiving )
+    #if not defined( RCSwitchDisableReceiving )
     static void handleInterrupt();
     static bool receiveProtocol1(unsigned int changeCount);
     static bool receiveProtocol2(unsigned int changeCount);
@@ -132,7 +132,7 @@ class HRCSwitch {
     int nRepeatTransmit;
     char nProtocol;
 
-    #if not defined( HRCSwitchDisableReceiving )
+    #if not defined( RCSwitchDisableReceiving )
     static int nReceiveTolerance;
     static unsigned long nReceivedValue;
     static unsigned int nReceivedBitlength;
@@ -142,7 +142,7 @@ class HRCSwitch {
     /* 
      * timings[0] contains sync timing, followed by a number of bits
      */
-    static unsigned int timings[HRCSWITCH_MAX_CHANGES];
+    static unsigned int timings[RCSWITCH_MAX_CHANGES];
 
     
 };

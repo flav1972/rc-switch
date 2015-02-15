@@ -1,5 +1,5 @@
 /*
-HRCSwitch SendDemo
+RCSwitch SendDemo
 HRCSwitch is a fork of RCSwitch libraries that also support HomeEasy Protocol
 If you use send with 3 arguments the library will send a HE300 Protocol Code
 If you use send with 2 arguments the library will send RCSwitch Protocol 1
@@ -9,15 +9,15 @@ mySwitch.send(Remote/Device code,Button/Recipient code,on/off)
 
 */
 
-#include <HRCSwitch.h>
-HRCSwitch mySwitch = HRCSwitch();
+#include <RCSwitch.h>
+RCSwitch mySwitch = RCSwitch();
 
 const int TXpin = 10;
 
 void setup() {
   Serial.begin(9600);
   mySwitch.enableTransmit(TXpin);
-  Serial.println("HRCSwitch ready");
+  Serial.println("RCSwitch ready");
 }
 
 void loop() {
