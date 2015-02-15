@@ -456,6 +456,13 @@ void RCSwitch::send(unsigned long Code, unsigned int length) {
   this->send( this->dec2binWzerofill(Code, length) );
 }
 
+/**
+ * Sends a command with protocol Type HomeEasy HE300
+ *
+ * @param remote   ID of transmitter device (26 bits: 0..67108864)
+ * @param button   Button (0..15)
+ * @param onoff    Turn on or off
+ */
 void RCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
   int lastprotocol = this->nProtocol;
   int lastRepeatTransmit = this->nRepeatTransmit;
@@ -474,7 +481,7 @@ void RCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
   //Latch1
   this->transmit(1,36);
   //Latch2
-  this->transmit(1,10);
+  this->transmit(1,10); // TODO: Latch 2 should be 2675µs which is not 10 * 275
   digitalWrite(this->nTransmitterPin, HIGH);
   
   //Remote (Recipient Code)
@@ -530,6 +537,11 @@ void RCSwitch::send(char* sCodeWord) {
   }
 }
 
+/**
+ * Sends a pair of nPulsesHigh * High Pulses and nPulsesLow * Low Pulses
+ *  _nPulsesHigh_
+ * |             |_nPulsesLow_
+ */
 void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
     #if not defined ( RCSwitchDisableReceiving )
     boolean disabled_Receive = false;
@@ -582,6 +594,7 @@ void RCSwitch::send0() {
  * Waveform Protocol 1: |   |_
  *                       __  
  * Waveform Protocol 2: |  |_
+ * 
  */
 void RCSwitch::send1() {
     if (this->nProtocol == 1){
@@ -594,10 +607,17 @@ void RCSwitch::send1() {
         this->transmit(9,6);
     }
     else if (this->nProtocol == 4) {
-        this->transmit(1,5);
+        this->transmit(1,5); // TODO: Should be 1, 4.45
     }
 }
 
+/**
+ * Sends a Pair of bits
+ *                    _        _
+ * 1 : send 1/send 0 | |_____/| |_
+ *                    _    _
+ * 0 : send 0/send 1 | |_/| |_____
+ */
 void RCSwitch::sendPair(boolean b) {
  if(b)
  {
@@ -888,7 +908,7 @@ char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char
 
   for (unsigned int j = 0; j< bitLength; j++) {
     if (j >= bitLength - i) {
-      bin[j] = bin[ 31 + i - (j - (bitLength - i)) ];
+      bin[j] = bin[ 31 + i - (j - (bitLength - i)) ]; // TODO: replace by 31+bitLenght-j
     }else {
       bin[j] = fill;
     }
