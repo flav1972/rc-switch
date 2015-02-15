@@ -64,6 +64,10 @@ void RCSwitch::setProtocol(int nProtocol) {
   else if (nProtocol == 3) {
     this->setPulseLength(100);
   }
+  //HOMEEASY
+  else if (nProtocol == 4){
+    this->setPulseLength(275);
+  }
 }
 
 /**
@@ -452,18 +456,74 @@ void RCSwitch::send(unsigned long Code, unsigned int length) {
   this->send( this->dec2binWzerofill(Code, length) );
 }
 
+void RCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
+  int lastprotocol = this->nProtocol;
+  int lastRepeatTransmit = this->nRepeatTransmit;
+
+  setProtocol(4);
+  setRepeatTransmit(1);
+
+  char* remote_bin = this->dec2binWzerofill(remote, 26);
+  char* button_bin = this->dec2binWzerofill2(button, 4);
+  //Serial.println(this->dec2binWzerofill(remote, 26));
+//char* remote_bin = (this->dec2binWcharfill(remote, 26, '0'));
+//char* button_bin = (this->dec2binWcharfill(button, 4, '0'));
+  Serial.println(remote_bin);
+  Serial.println(button_bin);
+  //Set Protocol to Home Easy (Chacon/DIO) 
+  //Latch1
+  this->transmit(1,36);
+  //Latch2
+  this->transmit(1,10);
+  digitalWrite(this->nTransmitterPin, HIGH);
+  
+  //Remote (Recipient Code)
+  this->send(remote_bin);
+
+  //No Group
+  this->sendPair(false);
+
+  //ON/OFF
+  this->sendPair(onoff);
+
+  //Button (Sender Code)
+  this->send(button_bin);
+
+  //End Message
+   this->send0();
+   delay(10);
+
+   setProtocol(lastprotocol);
+   setRepeatTransmit(lastRepeatTransmit);
+
+}
+
 void RCSwitch::send(char* sCodeWord) {
   for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
     int i = 0;
     while (sCodeWord[i] != '\0') {
-      switch(sCodeWord[i]) {
-        case '0':
-          this->send0();
-        break;
-        case '1':
-          this->send1();
-        break;
+      
+      if(this->nProtocol != 4){
+        switch(sCodeWord[i]) {
+          case '0':
+            this->send0();
+            break;
+          case '1':
+            this->send1();
+            break;
+        }
       }
+      else if(this->nProtocol == 4){
+        switch(sCodeWord[i]) {
+          case '0':
+            this->sendPair(false);
+            break;
+          case '1':
+            this->sendPair(true);
+          break;
+        }
+      }
+
       i++;
     }
     this->sendSync();
@@ -511,6 +571,9 @@ void RCSwitch::send0() {
     else if (this->nProtocol == 3) {
         this->transmit(4,11);
     }
+    else if (this->nProtocol == 4){
+        this->transmit(1,1);
+    }
 }
 
 /**
@@ -521,7 +584,7 @@ void RCSwitch::send0() {
  * Waveform Protocol 2: |  |_
  */
 void RCSwitch::send1() {
-      if (this->nProtocol == 1){
+    if (this->nProtocol == 1){
         this->transmit(3,1);
     }
     else if (this->nProtocol == 2) {
@@ -530,6 +593,22 @@ void RCSwitch::send1() {
     else if (this->nProtocol == 3) {
         this->transmit(9,6);
     }
+    else if (this->nProtocol == 4) {
+        this->transmit(1,5);
+    }
+}
+
+void RCSwitch::sendPair(boolean b) {
+ if(b)
+ {
+   this->send1();
+   this->send0();
+ }
+ else
+ {
+  this->send0();
+  this->send1();
+ }
 }
 
 
@@ -815,9 +894,29 @@ char* RCSwitch::dec2binWcharfill(unsigned long Dec, unsigned int bitLength, char
     }
   }
   bin[bitLength] = '\0';
-  
   return bin;
 }
 
+char* RCSwitch::dec2binWzerofill2(unsigned long Dec, unsigned int bitLength){
+    return dec2binWcharfill2(Dec, bitLength, '0');
+}
 
+char* RCSwitch::dec2binWcharfill2(unsigned long Dec, unsigned int bitLength, char fill){
+  static char bin[64];
+  unsigned int i=0;
 
+  while (Dec > 0) {
+    bin[32+i++] = ((Dec & 1) > 0) ? '1' : fill;
+    Dec = Dec >> 1;
+  }
+
+  for (unsigned int j = 0; j< bitLength; j++) {
+    if (j >= bitLength - i) {
+      bin[j] = bin[ 31 + i - (j - (bitLength - i)) ];
+    }else {
+      bin[j] = fill;
+    }
+  }
+  bin[bitLength] = '\0';
+  return bin;
+}
