@@ -472,11 +472,7 @@ void RCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
 
   char* remote_bin = this->dec2binWzerofill(remote, 26);
   char* button_bin = this->dec2binWzerofill2(button, 4);
-  //Serial.println(this->dec2binWzerofill(remote, 26));
-//char* remote_bin = (this->dec2binWcharfill(remote, 26, '0'));
-//char* button_bin = (this->dec2binWcharfill(button, 4, '0'));
-  Serial.println(remote_bin);
-  Serial.println(button_bin);
+
   //Set Protocol to Home Easy (Chacon/DIO) 
   //Latch1
   this->transmit(1,36);
