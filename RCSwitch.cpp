@@ -503,6 +503,8 @@ void RCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
 
 void RCSwitch::send(char* sCodeWord) {
   for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
+    if(this->nProtocol != 4)
+        this->sendSync();
     int i = 0;
     while (sCodeWord[i] != '\0') {
       
@@ -529,7 +531,6 @@ void RCSwitch::send(char* sCodeWord) {
 
       i++;
     }
-    this->sendSync();
   }
 }
 
