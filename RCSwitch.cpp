@@ -473,31 +473,34 @@ void RCSwitch::send(unsigned long remote, unsigned long button, boolean onoff){
   char* remote_bin = this->dec2binWzerofill(remote, 26);
   char* button_bin = this->dec2binWzerofill2(button, 4);
 
-  //Set Protocol to Home Easy (Chacon/DIO) 
-  //Latch1
-  this->transmit(1,36);
-  //Latch2
-  this->transmit(1,10); // TODO: Latch 2 should be 2675µs which is not 10 * 275
-  digitalWrite(this->nTransmitterPin, HIGH);
+  // send message several times as in protcol definition
+  for(byte t = 0; t < 5; t++) {
+    //Set Protocol to Home Easy (Chacon/DIO) 
+    //Latch1
+    this->transmit(1,36);
+    //Latch2
+    this->transmit(1,10); // TODO: Latch 2 should be 2675µs which is not 10 * 275
+    digitalWrite(this->nTransmitterPin, HIGH);
+    
+    //Remote (Recipient Code)
+    this->send(remote_bin);
+
+    //No Group
+    this->sendPair(false);
+
+    //ON/OFF
+    this->sendPair(onoff);
+
+    //Button (Sender Code)
+    this->send(button_bin);
+
+    //End Message
+     this->send0();
+     delay(10);
+  }
   
-  //Remote (Recipient Code)
-  this->send(remote_bin);
-
-  //No Group
-  this->sendPair(false);
-
-  //ON/OFF
-  this->sendPair(onoff);
-
-  //Button (Sender Code)
-  this->send(button_bin);
-
-  //End Message
-   this->send0();
-   delay(10);
-
-   setProtocol(lastprotocol);
-   setRepeatTransmit(lastRepeatTransmit);
+  setProtocol(lastprotocol);
+  setRepeatTransmit(lastRepeatTransmit);
 
 }
 
